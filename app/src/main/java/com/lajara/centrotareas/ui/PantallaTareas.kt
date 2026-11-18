@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -56,6 +57,7 @@ fun PantallaTareas(
     val corriendo by vm.corriendo.collectAsState()
     val primos by vm.primos.collectAsState()
     val carga by vm.carga.collectAsState()
+    val simularError by vm.simularError.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
     var texto by rememberSaveable { mutableStateOf("500000") }
     var hastaUsado by rememberSaveable { mutableIntStateOf(0) }
@@ -195,6 +197,16 @@ fun PantallaTareas(
 
             TarjetaTarea("Dos cargas") {
                 Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Switch(
+                        checked = simularError,
+                        onCheckedChange = { vm.cambiarSimularError(it) }
+                    )
+                    Text("Simular error")
+                }
+                Row(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -212,7 +224,7 @@ fun PantallaTareas(
                     }
                 }
                 when (val c = carga) {
-                    is CargaUi.Inicial, is CargaUi.Error -> {}
+                    is CargaUi.Inicial -> {}
                     is CargaUi.Cargando -> CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
@@ -244,6 +256,28 @@ fun PantallaTareas(
                                 text = "Tiempo: ${c.milisegundos} ms",
                                 color = Color(0xFF1B5E20)
                             )
+                        }
+                    }
+                    is CargaUi.Error -> {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = Color(0xFFFBE3E3),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = c.mensaje,
+                                color = Color(0xFFB3261E),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp)
+                            )
+                        }
+                        OutlinedButton(
+                            onClick = { vm.cargarALaVez() },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Text("Reintentar")
                         }
                     }
                 }
