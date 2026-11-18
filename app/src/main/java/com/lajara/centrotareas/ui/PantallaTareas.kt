@@ -58,6 +58,7 @@ fun PantallaTareas(
     val primos by vm.primos.collectAsState()
     val avancePrimos by vm.avancePrimos.collectAsState()
     val carga by vm.carga.collectAsState()
+    val tiempos by vm.tiempos.collectAsState()
     val simularError by vm.simularError.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
     var texto by rememberSaveable { mutableStateOf("500000") }
@@ -286,6 +287,58 @@ fun PantallaTareas(
                         ) {
                             Text("Reintentar")
                         }
+                    }
+                }
+
+                if (tiempos.unaPorUna.isNotEmpty() || tiempos.aLaVez.isNotEmpty()) {
+                    Text(
+                        text = "Comparación de tiempos",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Text("Modo", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1.5f))
+                            Text("Veces", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+                            Text("Promedio", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
+                            Text("Último", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
+                        }
+
+                        val pUna = tiempos.promedioUnaPorUna
+                        val uUna = tiempos.unaPorUna.lastOrNull()
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Text("Una por una", modifier = Modifier.weight(1.5f))
+                            Text("${tiempos.unaPorUna.size}", modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+                            Text(if (pUna != null) "$pUna ms" else "-", modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
+                            Text(if (uUna != null) "$uUna ms" else "-", modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
+                        }
+
+                        val pVez = tiempos.promedioALaVez
+                        val uVez = tiempos.aLaVez.lastOrNull()
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Text("A la vez", modifier = Modifier.weight(1.5f))
+                            Text("${tiempos.aLaVez.size}", modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+                            Text(if (pVez != null) "$pVez ms" else "-", modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
+                            Text(if (uVez != null) "$uVez ms" else "-", modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
+                        }
+                    }
+
+                    val diff = tiempos.diferencia
+                    if (diff != null) {
+                        val textoDiff = if (diff >= 0) {
+                            "A la vez ahorra $diff ms en promedio"
+                        } else {
+                            "Una por una fue ${-diff} ms más rápida en promedio"
+                        }
+                        Text(
+                            text = textoDiff,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             }

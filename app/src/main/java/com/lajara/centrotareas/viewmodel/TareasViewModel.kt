@@ -12,7 +12,26 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+data class TiemposCarga(
+    val unaPorUna: List<Long> = emptyList(),
+    val aLaVez: List<Long> = emptyList()
+) {
+    val promedioUnaPorUna: Long?
+        get() = if (unaPorUna.isNotEmpty()) unaPorUna.average().toLong() else null
+
+    val promedioALaVez: Long?
+        get() = if (aLaVez.isNotEmpty()) aLaVez.average().toLong() else null
+
+    val diferencia: Long?
+        get() {
+            val p1 = promedioUnaPorUna
+            val p2 = promedioALaVez
+            return if (p1 != null && p2 != null) p1 - p2 else null
+        }
+}
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
@@ -82,6 +101,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
 
+    private val _tiempos = MutableStateFlow(TiemposCarga())
+    val tiempos: StateFlow<TiemposCarga> = _tiempos.asStateFlow()
+
     private val _simularError = MutableStateFlow(false)
     val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
 
@@ -98,6 +120,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 val pedidos = repo.cargarPedidos(_simularError.value)
                 val milisegundos = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, milisegundos)
+                _tiempos.update { actual ->
+                    actual.copy(unaPorUna = actual.unaPorUna + milisegundos)
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -118,6 +143,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 }
                 val milisegundos = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, milisegundos)
+                _tiempos.update { actual ->
+                    actual.copy(aLaVez = actual.aLaVez + milisegundos)
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
