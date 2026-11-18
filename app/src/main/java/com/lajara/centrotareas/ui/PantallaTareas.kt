@@ -56,6 +56,7 @@ fun PantallaTareas(
     val progreso by vm.progreso.collectAsState()
     val corriendo by vm.corriendo.collectAsState()
     val primos by vm.primos.collectAsState()
+    val avancePrimos by vm.avancePrimos.collectAsState()
     val carga by vm.carga.collectAsState()
     val simularError by vm.simularError.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
@@ -160,11 +161,17 @@ fun PantallaTareas(
                 }
                 when (val p = primos) {
                     is PrimosUi.Inicial -> {}
-                    is PrimosUi.Calculando -> Text(
-                        text = "Calculando...",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                    is PrimosUi.Calculando -> {
+                        LinearProgressIndicator(
+                            progress = { avancePrimos },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            text = "Calculando... ${(avancePrimos * 100).toInt()} %",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
                     is PrimosUi.Cancelado -> Text(
                         text = "Cancelado",
                         modifier = Modifier.align(Alignment.CenterHorizontally)
