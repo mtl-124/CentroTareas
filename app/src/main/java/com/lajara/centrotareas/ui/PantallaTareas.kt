@@ -68,10 +68,10 @@ fun PantallaTareas(
                     Text("Tócame: $toques")
                 }
                 Button(
-                    onClick = { vm.tareaLargaMala() },
+                    onClick = { vm.tareaLarga() },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text("Tarea larga (MAL)")
+                    Text("Tarea larga")
                 }
                 Text(
                     text = mensaje,
