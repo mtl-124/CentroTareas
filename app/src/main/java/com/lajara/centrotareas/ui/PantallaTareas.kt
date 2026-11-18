@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.lajara.centrotareas.model.CargaUi
 import com.lajara.centrotareas.model.PrimosUi
 import com.lajara.centrotareas.viewmodel.TareasViewModel
 import com.lajara.centrotareas.viewmodel.TareasViewModelFactory
@@ -53,6 +55,7 @@ fun PantallaTareas(
     val progreso by vm.progreso.collectAsState()
     val corriendo by vm.corriendo.collectAsState()
     val primos by vm.primos.collectAsState()
+    val carga by vm.carga.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
     var texto by rememberSaveable { mutableStateOf("500000") }
     var hastaUsado by rememberSaveable { mutableIntStateOf(0) }
@@ -190,7 +193,61 @@ fun PantallaTareas(
                 }
             }
 
-            TarjetaTarea("Dos cargas")
+            TarjetaTarea("Dos cargas") {
+                Row(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { vm.cargarUnaPorUna() },
+                        enabled = carga !is CargaUi.Cargando
+                    ) {
+                        Text("Una por una")
+                    }
+                    Button(
+                        onClick = { vm.cargarALaVez() },
+                        enabled = carga !is CargaUi.Cargando
+                    ) {
+                        Text("A la vez")
+                    }
+                }
+                when (val c = carga) {
+                    is CargaUi.Inicial, is CargaUi.Error -> {}
+                    is CargaUi.Cargando -> CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                    is CargaUi.Exito -> Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color(0xFFE3F1E0),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Modo: ${c.modo}",
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1B5E20)
+                            )
+                            Text(
+                                text = "Perfil: ${c.perfil}",
+                                color = Color(0xFF1B5E20)
+                            )
+                            Text(
+                                text = "Pedidos: ${c.pedidos}",
+                                color = Color(0xFF1B5E20)
+                            )
+                            Text(
+                                text = "Tiempo: ${c.milisegundos} ms",
+                                color = Color(0xFF1B5E20)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

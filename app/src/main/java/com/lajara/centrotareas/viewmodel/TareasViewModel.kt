@@ -9,6 +9,8 @@ import com.lajara.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -81,4 +83,29 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     }
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
+
+    fun cargarUnaPorUna() {
+        viewModelScope.launch {
+            _carga.value = CargaUi.Cargando
+            val inicio = System.currentTimeMillis()
+            val perfil = repo.cargarPerfil()
+            val pedidos = repo.cargarPedidos(false)
+            val milisegundos = System.currentTimeMillis() - inicio
+            _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, milisegundos)
+        }
+    }
+
+    fun cargarALaVez() {
+        viewModelScope.launch {
+            _carga.value = CargaUi.Cargando
+            val inicio = System.currentTimeMillis()
+            val (perfil, pedidos) = coroutineScope {
+                val a = async { repo.cargarPerfil() }
+                val b = async { repo.cargarPedidos(false) }
+                Pair(a.await(), b.await())
+            }
+            val milisegundos = System.currentTimeMillis() - inicio
+            _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, milisegundos)
+        }
+    }
 }
