@@ -75,6 +75,16 @@ Al pulsar "Tarea larga (MAL)" la pantalla se congela 4 segundos y los toques no 
 
 ![img_6.png](img_6.png)
 
+## **FASE 2 - Mejora con IA**
+
+![img_7.png](img_7.png)
+
+![img_8.png](img_8.png)
+
+![img_10.png](img_10.png)
+
+![img_9.png](img_9.png)
+
 ## Para pensar
 
 **1. ¿Por qué no se veía `Trabajando...` en el Paso 1?**
