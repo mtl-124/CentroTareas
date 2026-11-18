@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lajara.centrotareas.viewmodel.TareasViewModel
 import com.lajara.centrotareas.viewmodel.TareasViewModelFactory
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.OutlinedButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +43,7 @@ fun PantallaTareas(
 ) {
     val mensaje by vm.mensaje.collectAsState()
     val progreso by vm.progreso.collectAsState()
+    val corriendo by vm.corriendo.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -75,11 +78,22 @@ fun PantallaTareas(
                 ) {
                     Text("Tócame: $toques")
                 }
-                Button(
-                    onClick = { vm.tareaLarga() },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                Row(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Iniciar")
+                    Button(
+                        onClick = { vm.tareaLarga() },
+                        enabled = !corriendo
+                    ) {
+                        Text("Iniciar")
+                    }
+                    OutlinedButton(
+                        onClick = { vm.cancelar() },
+                        enabled = corriendo
+                    ) {
+                        Text("Cancelar")
+                    }
                 }
                 LinearProgressIndicator(
                     progress = { progreso },
